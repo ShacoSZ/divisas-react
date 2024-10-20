@@ -1,12 +1,10 @@
 import './App.css';
-import CurrencyConverter from './components/dashboard';
-import Navbar from './components/navbar';
+import Main from './components/main';
 
 function App() {
   return (
     <div className="App">
-      <CurrencyConverter />
-      <Navbar />
+      <Main />
     </div>
   );
 }
