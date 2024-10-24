@@ -15,6 +15,7 @@ const defaultPreferences = {
 
 // Clave para localStorage
 const STORAGE_KEY = 'app_preferences';
+const STORAGE_KEY_REPORTES = 'app_reportes';
 
 export const PreferenciasContexto = createContext({
   preferencias: defaultPreferences,
@@ -22,10 +23,17 @@ export const PreferenciasContexto = createContext({
   guardarPreferencias: () => {},
   cargarPreferencias: () => {}
 });
+
+export const ReportesContexto = createContext({
+  reportes: [],
+  guardarReporte: () => {},
+  cargarReportes: () => {}
+});
   
 
 const Main = () => {
   const [preferencias, setPreferencias] = useState(defaultPreferences);
+  const [reportes, setReportes] = useState([]);
 
   useEffect(() => {
     cargarPreferencias();
