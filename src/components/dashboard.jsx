@@ -18,16 +18,18 @@ import {
   Avatar,
   useMediaQuery,
   useTheme,
-  IconButton
+  IconButton,
+  Button
 } from '@mui/material';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { DollarSign, Search, ArrowLeftRight } from 'lucide-react';
-import { PreferenciasContexto } from './main'; 
+import { PreferenciasContexto, ReportesContexto } from './main'; 
 
 const ITEMS_PER_PAGE = 8;
 
 const CurrencyDashboard = () => {
   const { preferencias, cambiarPreferencias } = useContext(PreferenciasContexto);
+  const { reportes, setReportes, guardarReporte } = useContext(ReportesContexto);
 
   const [amount, setAmount] = useState(1);
   const [fromCurrency, setFromCurrency] = useState('MXN');
@@ -201,6 +203,30 @@ const CurrencyDashboard = () => {
       </Box>
     );
   }
+  const handleSaveReport = () => {
+    const data = {
+      divisa_De: fromCurrency,
+      divisa_A: toCurrency,
+      monto_divisa_d: amount,
+      monto_resultante: convert(amount, fromCurrency, toCurrency),
+      fecha: new Date().toISOString()
+    };
+    
+    setReportes(prevReportes => [...(prevReportes || []), data]);
+    
+    // Cambiar a la vista de Historial después de guardar
+    cambiarPreferencias({
+      ...preferencias,
+      vista_actual: 'Historial'
+    });
+  };
+
+  const handleViewHistory = () => {
+    cambiarPreferencias({
+      ...preferencias,
+      vista_actual: 'Historial'
+    });
+  }
 
 
 
@@ -303,7 +329,33 @@ const CurrencyDashboard = () => {
                       sx={{ mt: 2 }}
                     />
                   </Grid>
+                  
                 </Grid>
+                {//Boton para generar reporte
+
+                }
+                < Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleSaveReport}
+                  >
+                    Generar Reporte
+                  </Button>
+
+                    
+                </Box>
+                < Box sx={{ display: 'flex', justifyContent: 'right', mt: 2 }}>
+
+                <Button
+                    onClick={handleViewHistory}
+                    sx={{ ml: 2 }}
+                  >
+                    Ver Historial
+                  </Button>
+                  </Box>
+
+
               </CardContent>
             </Card>
 

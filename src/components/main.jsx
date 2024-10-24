@@ -4,6 +4,7 @@ import ResponsiveNavigation from './navbar';
 import CurrencyConverter from './dashboard';
 import Preferences from './preferences';
 import Currencies from './currencies';
+import TransactionHistory from './lista_reportes';
 
 const defaultPreferences = {
   moneda: 'USD',
@@ -43,6 +44,38 @@ const Main = () => {
     guardarPreferencias();
   }, [preferencias]);
 
+  useEffect(() => {
+    cargarReportes();
+  }, []);
+
+  useEffect(() => {
+    guardarReporte();
+  }
+  , [reportes]);
+
+  const guardarReporte = () => {
+    try {
+      const reportesJSON = JSON.stringify(reportes);
+      localStorage.setItem(STORAGE_KEY_REPORTES, reportesJSON);
+      console.log('Reportes guardados exitosamente');
+    } catch (error) {
+      console.error('Error al guardar reportes:', error);
+    }
+  }
+
+  const cargarReportes = () => {
+    try {
+      const savedReportes = localStorage.getItem(STORAGE_KEY_REPORTES);
+      if (savedReportes) {
+        setReportes(JSON.parse(savedReportes));
+        console.log('Reportes cargados exitosamente');
+      }
+    }
+    catch (error) {
+      console.error('Error al cargar reportes:', error);
+      setReportes([]);
+    }
+  }
 
   const guardarPreferencias = () => {
     try {
@@ -83,6 +116,9 @@ const Main = () => {
         return <Currencies />;
       case 'Ajustes':
         return <Preferences />;
+      case 'Historial':  // Nueva ruta
+        return <TransactionHistory />;
+  
       default:
         return <CurrencyConverter />;
     }
@@ -95,24 +131,34 @@ const Main = () => {
     cargarPreferencias
   };
 
+  const contextValueReportes = {
+    reportes,
+    setReportes,
+    guardarReporte,
+    cargarReportes
+  };
+
 
   return (
+    
     <PreferenciasContexto.Provider value={contextValue}>
-      <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-        <ResponsiveNavigation />
-        <Box 
-          component="main" 
-          sx={{ 
-            flexGrow: 1, 
-            bgcolor: 'background.default', 
-            p: 3, 
-            width: { sm: `calc(100% - 240px)` }, 
-            marginBottom: { xs: '56px', sm: 0 } 
-          }}
-        >
-          {renderVistaActual()}
+      <ReportesContexto.Provider value={contextValueReportes}>
+        <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+          <ResponsiveNavigation />
+          <Box 
+            component="main" 
+            sx={{ 
+              flexGrow: 1, 
+              bgcolor: 'background.default', 
+              p: 3, 
+              width: { sm: `calc(100% - 240px)` }, 
+              marginBottom: { xs: '56px', sm: 0 } 
+            }}
+          >
+            {renderVistaActual()}
+          </Box>
         </Box>
-      </Box>
+      </ReportesContexto.Provider>
     </PreferenciasContexto.Provider>
   );
 };
