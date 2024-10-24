@@ -1,44 +1,128 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { PreferenciasContexto } from './main';
+import { 
+  Paper,
+  Typography,
+  Select,
+  MenuItem,
+  Button,
+  FormControl,
+  InputLabel,
+  Snackbar,
+  Alert,
+  Box,
+  Avatar,
+  useMediaQuery,
+  useTheme
+} from '@mui/material';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 
 const Preferences = () => {
   const { preferencias, cambiarPreferencias } = useContext(PreferenciasContexto);
+  const [monedaSeleccionada, setMonedaSeleccionada] = useState(preferencias.moneda);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
 
-  const handleMonedaChange = (event) => {
-    cambiarPreferencias({ moneda: event.target.value });
+
+  const handleMonedaChange = () => {
+    cambiarPreferencias({ moneda: monedaSeleccionada });
+    setOpenSnackbar(true);
+  };
+
+  const handleSelectChange = (event) => {
+    setMonedaSeleccionada(event.target.value);
+  };
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackbar(false);
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-8 rounded-lg border border-gray-200 shadow-sm bg-white">
-      <h2 className="text-2xl font-medium text-center mb-8">Preferencias</h2>
-      
-      <div className="space-y-6">
-        <div className="flex flex-col items-center space-y-4">
-          <label className="text-gray-600 text-lg">Moneda</label>
-          
-          <div className="flex items-center space-x-4">
-            <select
-              value={preferencias.moneda}
-              onChange={handleMonedaChange}
-              className="w-32 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+    <>
+      <Paper 
+        elevation={2} 
+        sx={{
+          maxWidth: '32rem',
+          mx: 'auto',
+          p: 4,
+          borderRadius: 2
+        }}
+      >
+        <Typography 
+          variant="h4" 
+          component="h2" 
+          sx={{ 
+            textAlign: 'center', 
+            mb: 4,
+            fontWeight: 500
+          }}
+        >
+          Preferencias
+        </Typography>
+        
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 3
+        }}>
+          <FormControl sx={{ minWidth: 200 }}>
+            <InputLabel id="moneda-select-label">Moneda</InputLabel>
+            <Select
+              labelId="moneda-select-label"
+              id="moneda-select"
+              value={monedaSeleccionada}
+              label="Moneda"
+              onChange={handleSelectChange}
+              sx={{ width: '100%' }}
             >
               {preferencias.lista_monedas?.map((moneda) => (
-                <option key={moneda} value={moneda}>
-                  {moneda}
-                </option>
+                <MenuItem key={moneda} value={moneda}>
+                  <Avatar 
+                              src={preferencias.map_banderas[moneda]} 
+                              sx={{ width: isDesktop ? 32 : 24, height: isDesktop ? 32 : 24, mr: 1 }} 
+                            />
+                            {moneda}
+                </MenuItem>
               ))}
-            </select>
-            
-            <button 
-              onClick={() => {/* Save logic here */}}
-              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            >
-              GUARDAR
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+            </Select>
+          </FormControl>
+
+          <Button 
+            variant="contained" 
+            onClick={handleMonedaChange}
+            sx={{ 
+              px: 4,
+              py: 1,
+              textTransform: 'none',
+              fontWeight: 500
+            }}
+          >
+            Guardar
+          </Button>
+        </Box>
+      </Paper>
+
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity="success"
+          icon={<CheckCircleOutlineIcon />}
+          sx={{ width: '100%' }}
+        >
+          Preferencias actualizadas correctamente
+        </Alert>
+      </Snackbar>
+    </>
   );
 };
 
