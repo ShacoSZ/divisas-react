@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { 
   Container, 
   Typography, 
@@ -22,11 +22,13 @@ import {
 } from '@mui/material';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { DollarSign, Search, ArrowLeftRight } from 'lucide-react';
-import ResponsiveNavigation from './dashboard'; // Asegúrate de importar el nuevo componente
+import { PreferenciasContexto } from './main'; 
 
 const ITEMS_PER_PAGE = 8;
 
 const CurrencyDashboard = () => {
+  const { preferencias, cambiarPreferencias } = useContext(PreferenciasContexto);
+
   const [amount, setAmount] = useState(1);
   const [fromCurrency, setFromCurrency] = useState('MXN');
   const [toCurrency, setToCurrency] = useState('USD');
@@ -47,7 +49,7 @@ const CurrencyDashboard = () => {
     try {
       const today = new Date().toISOString().split('T')[0];
       const oneYearAgo = new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString().split('T')[0];
-      const response = await fetch(`https://api.frankfurter.app/${oneYearAgo}..${today}?base=USD`);
+      const response = await fetch(`https://api.frankfurter.app/${oneYearAgo}..${today}?base=${preferencias.moneda}`);
       const data = await response.json();
 
       const mostRecentDate = Object.keys(data.rates).sort().pop();
@@ -57,12 +59,17 @@ const CurrencyDashboard = () => {
       setExchangeRatesHistory(data.rates);
 
       let currenciesList = Object.keys(latestRates).map(code => ({ code, name: `${code}` }));
-      currenciesList.push({ code: 'USD', name: 'USD' });
+
+      
+      currenciesList.push({ code: preferencias.moneda, name: preferencias.moneda });
       setCurrencies(currenciesList);
 
       const flagsPromises = currenciesList.map(async (currency) => {
         if (currency.code === 'EUR') {
           return { [currency.code]: 'https://flagcdn.com/w20/eu.png' };
+        }
+        if(currency.code === 'USD') {
+          return { [currency.code]: 'https://flagcdn.com/w40/us.png' };
         }
         try {
           const flagResponse = await fetch(`https://restcountries.com/v3.1/currency/${currency.code}`);
@@ -80,6 +87,8 @@ const CurrencyDashboard = () => {
       const flagsObject = Object.assign({}, ...flags);
       setCountryFlags(flagsObject);
 
+      cambiarPreferencias({ lista_monedas: currenciesList.map(currency => currency.code), map_banderas: countryFlags });
+
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -88,6 +97,9 @@ const CurrencyDashboard = () => {
 
   useEffect(() => {
     fetchData();
+    console.log('Currencies:', preferencias.lista_monedas);
+    console.log('Flags:', preferencias.map_banderas);
+
   }, [fetchData]);
 
   const updateChartData = useCallback((currency, ratesHistory) => {
@@ -106,9 +118,9 @@ const CurrencyDashboard = () => {
   }, [fromCurrency, exchangeRatesHistory, updateChartData]);
 
   const convert = useCallback((value, from, to) => {
-    if (from === 'USD') {
+    if (from === preferencias.moneda) {
       return (value * exchangeRates[to]).toFixed(3);
-    } else if (to === 'USD') {
+    } else if (to === preferencias.moneda) {
       return (value / exchangeRates[from]).toFixed(3);
     } else {
       const valueInUSD = value / exchangeRates[from];
@@ -248,7 +260,7 @@ const CurrencyDashboard = () => {
             <Card sx={{ mb: 4, border: '1px solid black' }}>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
-                  Historial de Tipo de Cambio en base de USD a la moneda base seleccionada (USD/{fromCurrency})
+                  Historial de Tipo de Cambio en base a la moneda base de las preferencias ({preferencias.moneda}/{fromCurrency})
                 </Typography>
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={chartData}>
@@ -263,6 +275,7 @@ const CurrencyDashboard = () => {
           </Grid>
 
           <Grid item xs={12} md={6}>
+            
             <Card sx={{ mb: 4, border: '1px solid black' }}>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
