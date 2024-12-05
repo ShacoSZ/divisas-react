@@ -113,8 +113,10 @@ const SignUpForm = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      // Aquí iría la lógica de registro
+      
       console.log('Signup:', formData);
+
+      
     }
   };
 

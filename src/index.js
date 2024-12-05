@@ -11,12 +11,14 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 );
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then((registration) => {
-        console.log('SW registrado:', registration);
+    navigator.serviceWorker.register('/sw.js', { scope: '/' })
+      .then(registration => {
+        if (registration.waiting) {
+          registration.unregister().then(() => {
+            window.location.reload();
+          });
+        }
       })
-      .catch((error) => {
-        console.log('SW error:', error);
-      });
+      .catch(error => console.error('SW error:', error));
   });
 }
