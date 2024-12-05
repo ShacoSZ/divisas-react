@@ -16,32 +16,41 @@ export const AuthProvider = ({ children }) => {
           setUser(userData);
         }
       } catch (error) {
-        console.error('Error al inicializar autenticación:', error);
+        console.error(error);
       } finally {
         setLoading(false);
       }
     };
-
     initAuth();
   }, []);
 
-  const login = async (credentials) => {
-    const response = await authService.login(credentials);
-    setUser(response.user);
-    return response;
+  const value = {
+    user,
+    loading,
+    login: async (credentials) => {
+      const response = await authService.login(credentials);
+      setUser(response.user);
+      return response;
+    },
+    register: async (userData) => {
+      const response = await authService.register(userData);
+      setUser(response.user);
+      return response;
+    },
+    signup: async (userData) => {
+      const response = await authService.signup(userData);
+      setUser(response.user);
+      return response;
+    },
+    logout: async () => {
+      await authService.logout();
+      setUser(null);
+    },
+    isAuthenticated: !!user
   };
-
-  const logout = async () => {
-    await authService.logout();
-    setUser(null);
-  };
-
-  if (loading) {
-    return <div className="flex items-center justify-center h-screen">Cargando...</div>;
-  }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

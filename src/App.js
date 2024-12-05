@@ -42,7 +42,6 @@ const theme = createTheme({
 
 function App() {
   // Simular un estado de autenticación
-  const userRole = 'client'; // Puede ser 'admin', 'barber', 'client' o null
 
   const router = createBrowserRouter([
     {
@@ -54,7 +53,7 @@ function App() {
       element: <SignUpForm  />,
     },
     {
-      element: <ProtectedLayout userRole={userRole} />,
+      element: <ProtectedLayout />,
       children: [
         {
           path: '/dashboard',

@@ -1,14 +1,18 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { servicesApi } from '../services/api';
 import { toast } from 'react-hot-toast';
+import { useAuth } from '../context/AuthContext';
+
 
 const ServicesContext = createContext(null);
 
 export const ServicesProvider = ({ children }) => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   const loadServices = async () => {
+    if (!user) return;
     try {
       setLoading(true);
       const data = await servicesApi.getAll();

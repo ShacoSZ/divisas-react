@@ -23,7 +23,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('barber_token');
       localStorage.removeItem('barber_user');
-      window.location.href = '/';
+      //window.location.href = '/';
     }
     return Promise.reject(error);
   }
@@ -35,6 +35,15 @@ export const authService = {
       const { data } = await api.post('/auth/login', credentials);
       localStorage.setItem('barber_token', data.data.token);
       localStorage.setItem('barber_user', JSON.stringify(data.data.user));
+      return data.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  async register(userData) {
+    try {
+      const { data } = await api.post('/v1/users', userData);
       return data.data;
     } catch (error) {
       throw error.response?.data || error.message;

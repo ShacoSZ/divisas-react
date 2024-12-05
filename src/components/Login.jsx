@@ -3,6 +3,7 @@ import { Card, Button, Input } from './ui';
 import { User, Lock, Mail, Scissors, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
 
 const AuthLayout = ({ children, title, subtitle }) => (
   <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -38,7 +39,10 @@ const LoginForm = () => {
       navigate('/dashboard');
     } catch (error) {
       // Manejar error
-      console.error('Error de login:', error);
+      console.error('Error:', error);
+      toast.error(error.message || 'Error al iniciar sesión');
+
+
     }
   };
 
@@ -84,15 +88,17 @@ const LoginForm = () => {
 };
 
 const SignUpForm = () => {
+  const navigate = useNavigate();
+  const { register } = useAuth();
+
   const [formData, setFormData] = useState({
     name: '',
     lastname: '',
     email: '',
     username: '',
     password: '',
-    confirmPassword: ''
+    role_id: 3 // Asumiendo que 3 es el ID para clientes
   });
-
   const [errors, setErrors] = useState({});
 
   const validateForm = () => {
@@ -110,13 +116,18 @@ const SignUpForm = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      
-      console.log('Signup:', formData);
-
-      
+    if (!validateForm()) {
+      return;
+    }
+    try {
+      await register(formData);
+      toast.success('Registro exitoso');
+      navigate('/');
+    } catch (error) {
+      toast.error(error.message || 'Error al registrar usuario');
+      console.error('Error de registro:', error);
     }
   };
 
