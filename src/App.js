@@ -11,6 +11,8 @@ import AppointmentsPage from './pages/Barber/AppointmentsPage';
 import SchedulePage from './pages/Barber/SchedulePage';
 import ClientAppointments from './pages/Client/ClientAppointments';
 import NewAppointment from './pages/Client/NewAppointment';
+import { ServicesProvider } from './context/ServiceContext';
+import { Toaster } from 'react-hot-toast';
 
 const theme = createTheme({
   palette: {
@@ -88,10 +90,13 @@ function App() {
 
   return (
     <AuthProvider>
-    <ThemeProvider theme={theme}>
-      <RouterProvider router={router} />
-    </ThemeProvider>
-  </AuthProvider>
+      <ServicesProvider>
+        <ThemeProvider theme={theme}>
+          <RouterProvider router={router} />
+          <Toaster position="top-right" />
+        </ThemeProvider>
+      </ServicesProvider>
+    </AuthProvider>
   );
 }
 

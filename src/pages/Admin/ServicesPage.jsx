@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Card, Button, Input, LoadingSpinner } from '../../components/ui';
 import { Plus, Edit, Trash2, Check, X, DollarSign } from 'lucide-react';
+import { useServices } from '../../context/ServiceContext'
 
 const ServiceDialog = ({ service, onClose, onSave }) => {
   const [formData, setFormData] = useState(
@@ -93,21 +94,22 @@ const ServiceCard = ({ service, onEdit, onToggleActive, onDelete }) => (
     </div>
 
     <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
-      <Button 
-        variant={service.active ? "secondary" : "primary"}
-        onClick={() => onToggleActive(service.id)}
-        size="sm"
-      >
-        {service.active ? (
-          <span className="flex items-center gap-1">
-            <Check size={16} /> Activo
-          </span>
-        ) : (
-          <span className="flex items-center gap-1">
-            <X size={16} /> Inactivo
-          </span>
-        )}
-      </Button>
+    <Button 
+      variant={service.active ? "secondary" : "primary"}
+      onClick={() => onToggleActive(service.id)}  // Cambia aquí
+      size="sm"
+    >
+      {service.active ? (
+        <span className="flex items-center gap-1">
+          <Check size={16} /> Activo
+        </span>
+      ) : (
+        <span className="flex items-center gap-1">
+          <X size={16} /> Inactivo
+        </span>
+      )}
+    </Button>
+
 
       <Button
         variant="outline"
@@ -129,76 +131,52 @@ const ServiceCard = ({ service, onEdit, onToggleActive, onDelete }) => (
 );
 
 const ServicesPage = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [services, setServices] = useState([]);
+  const { 
+    services, 
+    loading, 
+    createService, 
+    updateService, 
+    deleteService, 
+    toggleServiceStatus  
+  } = useServices();
   const [showDialog, setShowDialog] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
 
-  React.useEffect(() => {
-    // Simular carga de datos
-    setTimeout(() => {
-      setServices([
-        {
-          id: 1,
-          name: 'Corte de Cabello',
-          description: 'Corte de cabello profesional con acabado y estilo personalizado.',
-          price: 25.00,
-          active: true
-        },
-        {
-          id: 2,
-          name: 'Barba',
-          description: 'Recorte y perfilado de barba, incluye productos para el cuidado.',
-          price: 15.00,
-          active: true
-        },
-        {
-          id: 3,
-          name: 'Corte + Barba',
-          description: 'Combinación de corte de cabello y arreglo de barba con descuento.',
-          price: 35.00,
-          active: true
-        },
-        {
-          id: 4,
-          name: 'Tinte',
-          description: 'Coloración profesional con productos de alta calidad.',
-          price: 45.00,
-          active: false
-        }
-      ]);
-      setIsLoading(false);
-    }, 1000);
-  }, []);
 
-  const handleSave = (serviceData) => {
+
+  const handleSave = async (serviceData) => {
     if (selectedService) {
-      setServices(services.map(s => 
-        s.id === selectedService.id ? { ...s, ...serviceData } : s
-      ));
+      await updateService(selectedService.id, serviceData);
     } else {
-      setServices([...services, { ...serviceData, id: Date.now() }]);
+      await createService(serviceData);
     }
+    setShowDialog(false);
+    setSelectedService(null);
   };
+
 
   const handleEdit = (service) => {
     setSelectedService(service);
     setShowDialog(true);
   };
 
-  const handleToggleActive = (serviceId) => {
-    setServices(services.map(s =>
-      s.id === serviceId ? { ...s, active: !s.active } : s
-    ));
-  };
-
-  const handleDelete = (serviceId) => {
-    if (window.confirm('¿Estás seguro de que deseas eliminar este servicio?')) {
-      setServices(services.filter(s => s.id !== serviceId));
+  const handleToggleActive = async (serviceId) => {
+    try {
+      await toggleServiceStatus(serviceId);
+    } catch (error) {
+      console.error('Error al cambiar el estado del servicio:', error);
     }
   };
 
-  if (isLoading) {
+
+
+  const handleDelete = async (serviceId) => {
+    if (window.confirm('¿Estás seguro de que deseas eliminar este servicio?')) {
+      await deleteService(serviceId);
+    }
+  };
+
+  if (loading) {
     return (
       <div className="flex justify-center items-center h-[calc(100vh-4rem)]">
         <LoadingSpinner size="lg" />
