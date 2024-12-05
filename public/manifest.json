@@ -1,7 +1,7 @@
 {
-  "name": "DivisasPatito",
-  "short_name": "Pativisas",
-  "description": "Aplicación de conversión de divisas",
+  "name": "BarberShopGestor",
+  "short_name": "BarberShop",
+  "description": "Aplicación para la gestión y control de la barbería BarberShop",
   "scope": ".",
   "start_url": ".",
   "display": "standalone",
@@ -24,18 +24,18 @@
   
   "screenshots": [
     {
-      "src": "/screenshots/app-screenshot.jpg",
+      "src": "/screenshots/movil-view.png",
       "sizes": "390x844",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Homescreen de DivisasPatito en móvil"
+      "label": "Homescreen de BarberShop en móvil"
     },
     {
-      "src": "screenshots/app-screenshot2.png",
+      "src": "screenshots/desktop-view.png",
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Homescreen de DivisasPatito en escritorio"
+      "label": "Homescreen de BarberShop en escritorio"
     }
   ],
  "icons": [
@@ -69,12 +69,7 @@
       "type": "image/png",
       "purpose": "maskable"
     },
-    {
-      "src": "images/icons/icon-152x152.png",
-      "sizes": "152x152",
-      "type": "image/png",
-      "purpose": "any"
-    },
+  
     {
       "src": "images/icons/icon-192x192.png",
       "sizes": "192x192",
